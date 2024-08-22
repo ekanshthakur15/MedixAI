@@ -13,11 +13,13 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,7 +28,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-*5#4=%rtdm2z(c8i%g95r9eyk=_i)!spe=tx=qla6!)x+lq8^z'
 
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+#print(GEMINI_API_KEY)
 
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable not set")
@@ -49,7 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # apps
-    "auth",
+    "accounts",
     "report_analysis",
 
     # 3rd-party
@@ -140,3 +143,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"

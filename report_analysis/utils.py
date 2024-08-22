@@ -1,3 +1,4 @@
+import json
 import time
 
 import google.generativeai as genai
@@ -27,3 +28,19 @@ def wait_for_files_active(files):
             raise Exception(f"File {file.name} failed to process")
     print("...all files ready")
     print()
+
+# Function to convert json string into JSON object
+def create_json(json_string):
+
+    cleaned_string = json_string.strip("```json")
+    print("Cleaned_1: " + cleaned_string)
+    n = len(cleaned_string)
+    cleaned_string = cleaned_string[:n-4]
+    print("Cleaned_1: " + cleaned_string)
+
+
+    try:
+        json_object = json.loads(cleaned_string)
+        return json_object
+    except json.JSONDecodeError as e:
+        return e
