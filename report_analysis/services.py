@@ -4,6 +4,8 @@ from django.conf import settings
 genai.configure(api_key = settings.GEMINI_API_KEY)
 
 # Create the model
+
+#LLM configurations
 generation_config = {
 "temperature": 1,
 "top_p": 0.95,
@@ -15,8 +17,7 @@ generation_config = {
 model = genai.GenerativeModel(
 model_name="gemini-1.5-pro",
 generation_config=generation_config,
-# safety_settings = Adjust safety settings
-# See https://ai.google.dev/gemini-api/docs/safety-settings
+
 )
 
 def get_report_analysis(user_input, files):
@@ -37,7 +38,7 @@ def get_report_analysis(user_input, files):
         },
     ]
     )
-    
+
     response = chat_session.send_message(user_input)
     return response.text
 

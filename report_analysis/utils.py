@@ -2,6 +2,8 @@ import json
 import time
 
 import google.generativeai as genai
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 # function to upload files to Gemini.
 
@@ -35,8 +37,8 @@ def create_json(json_string):
     cleaned_string = json_string.strip("```json")
     print("Cleaned_1: " + cleaned_string)
     n = len(cleaned_string)
-    cleaned_string = cleaned_string[:n-4]
-    print("Cleaned_1: " + cleaned_string)
+    cleaned_string = cleaned_string[:]
+    print("Cleaned_2: " + cleaned_string)
 
 
     try:
@@ -44,3 +46,14 @@ def create_json(json_string):
         return json_object
     except json.JSONDecodeError as e:
         return e
+    
+
+
+def save_temp_file(uploaded_file):
+    # Save the uploaded file temporarily
+    temp_file_name = default_storage.save(uploaded_file.name, ContentFile(uploaded_file.read()))
+
+    # Get the full path of the saved file
+    temp_file_path = default_storage.path(temp_file_name)
+    
+    return temp_file_path

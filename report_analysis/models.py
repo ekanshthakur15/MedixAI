@@ -4,9 +4,17 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
+class ReportCategory(models.Model):
+    name = models.CharField(max_length= 100)
+    user = models.ForeignKey(User, on_delete= models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.name
 # Create your models here.
 class MedicalReport(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null= True, blank= True)
+    category = models.ForeignKey(ReportCategory, on_delete=models.CASCADE , blank= True, null= True)
     name = models.CharField(max_length=150)
     test_date = models.DateField(default=datetime.date.today())
 
@@ -14,7 +22,7 @@ class MedicalReport(models.Model):
 
     def __str__(self) -> str:
         return self.name
-    
+
 class ReportAttributes(models.Model):
 
     medical_report = models.ForeignKey(MedicalReport, on_delete=models.CASCADE)
