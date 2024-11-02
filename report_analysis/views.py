@@ -47,6 +47,20 @@ class KnowYourMedicineView(APIView):
 
         return Response({"response": response}, status=status.HTTP_200_OK)
     
+class TreatmentListAPIView(APIView):
+    def post(self, request):
+        user = request.user
+        serializer = TreatmentSerializer(data = request.data, user = user)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Treatment was created successfully"}, status= status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        user = request.user
+        treatments = Treatment.objects.filter(user = user)
+        serializer = TreatmentSerializer(treatments, many = True)
+        return Response(serializer.data, status= status.HTTP_200_OK)
 
 class MedicalReportListAPIView(APIView):
 
@@ -75,16 +89,19 @@ class ReportAttributesListView(APIView):
 
         return Response({"attributes":serializer.data}, status= status.HTTP_200_OK)
 
-class MedicalReportAnalyseAPIView(APIView):
+class MedicalReportAPIView(APIView):
     
     def post(self,request, *args, **kwargs):
         file = request.data.get('file')
         if not file:
             return Response({'error':"No file provided"}, status= status.HTTP_400_BAD_REQUEST)
+        treatment_name = request.data.get('treatment')
+        treatment = Treatment.objects.get(user = request.user , name = treatment_name)
         
         medical_report_data = {
             'user': request.user.id,
             'name': request.data['name'],
+            'treatment': treatment.id,
             'report': file
         }
         
@@ -112,6 +129,20 @@ class MedicalReportAnalyseAPIView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+        #Create summary for each report when it is uploaded
+        try:
+            summary_prompt = "Create a detailed summary of the report"
+            response_summary = get_report_analysis(summary_prompt, files=files)
+            summary = {
+                medical_report: medical_report,
+                summary: response_summary
+            }
+            serializer = ReportSummarySerializer(data = summary)
+            if serializer.is_valid():
+                serializer.save()
+                print("Summary was created successfully")
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Prepare data for bulk creation
         report_attributes_list = []
@@ -139,27 +170,10 @@ class MedicalReportAnalyseAPIView(APIView):
             'medical_report': medical_report_response.data,
             'report_attributes': report_attributes_response.data
         }, status=status.HTTP_201_CREATED)
-    
+
 
 
 #API to create Report Summary
-
-
-"""
-class ReportSummaryAPIView(APIView):
-    
-    def post(self, request):
-
-        report_id = request.data.get('report_id')
-        file = request.data.get('file')
-
-        if report_id:
-            medical_report = MedicalReport.objects.get(id = report_id)
-            
-            file = 
-
-"""
-
 class ReportSummaryAPIView(APIView):
 
     def post(self, request):
@@ -192,7 +206,7 @@ class ReportSummaryAPIView(APIView):
             if os.path.exists(file_path):
                 os.remove(file_path)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
 
 class MedicalReportAttributeVisualisation(APIView):
     def get(self,request,element):
@@ -217,7 +231,7 @@ class MedicalReportAttributeVisualisation(APIView):
         serializer = ReportAttributesSerializer(medical_report_attributes,many = True)
 
         for i in serializer.data:
-            i["reference_low"] = float(min(float(i["reference_low"]), min_ref))
+            i["reference_low"] = float(max(float(i["reference_low"]), min_ref))
             i["reference_high"] = float(min(float(i["reference_high"]), max_ref))
             i["result"] = float(min(float(i["result"]), max_ref))
 
