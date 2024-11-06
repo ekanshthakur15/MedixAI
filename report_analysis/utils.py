@@ -57,3 +57,9 @@ def save_temp_file(uploaded_file):
     temp_file_path = default_storage.path(temp_file_name)
     
     return temp_file_path
+
+def getCondition(result, low, high):
+    if(result > low and result < high):
+        return 'normal'
+    else:
+        return 'severe'

@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+BASE_URL = os.getenv('BASE_URL', 'http://localhost:8000/')
 load_dotenv()
 
 
@@ -38,7 +38,9 @@ if not GEMINI_API_KEY:
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 ALLOW_ALL_ORIGINS = True
 
 # Application definition
