@@ -29,7 +29,9 @@ load_dotenv()
 SECRET_KEY = 'django-insecure-*5#4=%rtdm2z(c8i%g95r9eyk=_i)!spe=tx=qla6!)x+lq8^z'
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-#print(GEMINI_API_KEY)
+# print(GEMINI_API_KEY)
+ELASTICSEARCH_PASSOWRD = os.getenv("ELASTICSEARCH_PASSOWRD")
+print(ELASTICSEARCH_PASSOWRD)
 
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable not set")
